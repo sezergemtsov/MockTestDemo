@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +17,11 @@ public class GeoServiceTest {
         gs = new GeoServiceImpl();
     }
 
+    @AfterEach
+    public void clear() {
+        gs = null;
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"127.0.0.1", "172.0.32.11", "96.44.183.149"})
     public void byIPPTest(String strings) {
@@ -23,16 +29,12 @@ public class GeoServiceTest {
         //act
         Location result = gs.byIp(strings);
         //assertion
-        switch (strings) {
-            case "172.0.32.11":
-                Assertions.assertEquals(result.getCountry(), Country.RUSSIA);
-                break;
-            case "127.0.0.1":
-                Assertions.assertEquals(result.getCountry(), null);
-                break;
-            default:
-                Assertions.assertEquals(result.getCountry(), Country.USA);
-                break;
+        if (strings.startsWith("172.")) {
+            Assertions.assertEquals(result.getCountry(), Country.RUSSIA);
+        } else if (strings.startsWith("127.")) {
+            Assertions.assertEquals(result.getCountry(), null);
+        } else {
+            Assertions.assertEquals(result.getCountry(), Country.USA);
         }
     }
 }
